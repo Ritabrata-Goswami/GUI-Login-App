@@ -1,12 +1,13 @@
 import sys
 import pyodbc 
 from PyQt5 import *
-from PyQt5.QtGui import QGuiApplication
+from PyQt5.QtGui import *
 from PyQt5.QtQml import QQmlApplicationEngine
 from PyQt5.QtQuick import QQuickWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from pathlib import Path
+
 
 
 
@@ -55,6 +56,7 @@ class LoginGUI(QWidget):
         self.LoginBtn.clicked.connect(self.getLogin)
 
 
+
         self.loginSuccess=QLabel("Welcome to Dashboard", 
                                 alignment=Qt.AlignmentFlag.AlignHCenter
                                 )
@@ -83,12 +85,16 @@ class LoginGUI(QWidget):
         self.setUserPhone.setObjectName("userPhone")
         self.setUserPhone.hide()
 
-        vertical_layout.addWidget(self.loginSuccess)
-        vertical_layout.addWidget(self.setUserName)
-        horizontal_layout.addWidget(self.setUserAge)
-        horizontal_layout.addWidget(self.setUserEmail)
-        horizontal_layout.addWidget(self.setUserPhone)
-        
+        self.manubarbtn1=QPushButton("Form")
+        self.manubarbtn1.setObjectName("FormButtonQss")
+        self.manubarbtn1.clicked.connect(self.clickForm)
+        self.manubarbtn1.hide()
+
+        self.manubarbtn2=QPushButton("Display")
+        self.manubarbtn2.setObjectName("DisplayButtonQss")
+        self.manubarbtn2.clicked.connect(self.clickDisplay)
+        self.manubarbtn2.hide()
+
 
         self.line_gap=QLabel("Enter Data Below",
                                 alignment=Qt.AlignmentFlag.AlignHCenter
@@ -102,31 +108,67 @@ class LoginGUI(QWidget):
                   placeholderText="Enter Product Id"
                 )
         self.form_entry1.setObjectName("form_entry")
-        form_layout.addRow(self.form_des1, self.form_entry1)
-
+        
         self.form_des2=QLabel("Enter Product Name:- ")
         self.form_des2.setObjectName("form_description")
         self.form_entry2=QLineEdit(self, 
                   placeholderText="Enter Product Name"
                 )
         self.form_entry2.setObjectName("form_entry")
-        form_layout.addRow(self.form_des2, self.form_entry2)
-
+        
         self.form_des3=QLabel("Enter Product Weight (Kg):- ")
         self.form_des3.setObjectName("form_description")
         self.form_entry3=QLineEdit(self, 
                                 placeholderText="Enter Product Weight"
                             )
         self.form_entry3.setObjectName("form_entry")
-        form_layout.addRow(self.form_des3, self.form_entry3)
-
+        
         self.form_entry_btn=QPushButton("Add Data")
         self.form_entry_btn.setObjectName("form_entry_btn")
-        form_layout.addRow(self.form_entry_btn)
+        
         self.form_entry_btn.clicked.connect(self.sendData)
 
         self.UserId=QLabel(self)
         self.UserId.hide()
+
+
+                       #Display table
+        self.display_table=QTableWidget(self)
+        self.display_description=QLabel("Display Data", 
+                                        alignment=Qt.AlignmentFlag.AlignHCenter
+                                    )
+        self.display_description.setObjectName("display_description")
+        self.display_description.hide()
+
+        # self.setCentralWidget(self.display_table)
+        self.display_table.setColumnCount(7)
+        self.display_table.setColumnWidth(0, 70)
+        self.display_table.setColumnWidth(1, 100)
+        self.display_table.setColumnWidth(2, 200)
+        self.display_table.setColumnWidth(3, 270)
+        self.display_table.setColumnWidth(4, 190)
+        self.display_table.setColumnWidth(5, 150)
+        self.display_table.setColumnWidth(6, 150)
+        
+        self.display_table.setHorizontalHeaderLabels(["Id", "User Id", "Product Id", "Product Name", "Product Weight", "Edit", "Delete"])
+        header_font_1 = QFont("Arial", 14)
+        self.display_table.horizontalHeaderItem(0).setFont(header_font_1)
+        self.display_table.horizontalHeaderItem(0).setForeground(QColor('#005ce6'))
+        self.display_table.horizontalHeaderItem(1).setFont(header_font_1)
+        self.display_table.horizontalHeaderItem(1).setForeground(QColor('#005ce6'))
+        self.display_table.horizontalHeaderItem(2).setFont(header_font_1)
+        self.display_table.horizontalHeaderItem(2).setForeground(QColor('#005ce6'))
+        self.display_table.horizontalHeaderItem(3).setFont(header_font_1)
+        self.display_table.horizontalHeaderItem(3).setForeground(QColor('#005ce6'))
+        self.display_table.horizontalHeaderItem(4).setFont(header_font_1)
+        self.display_table.horizontalHeaderItem(4).setForeground(QColor('#005ce6'))
+        self.display_table.horizontalHeaderItem(5).setFont(header_font_1)
+        self.display_table.horizontalHeaderItem(5).setForeground(QColor('#005ce6'))
+        self.display_table.horizontalHeaderItem(6).setFont(header_font_1)
+        self.display_table.horizontalHeaderItem(6).setForeground(QColor('#005ce6'))
+        self.display_table.setFixedHeight(500)
+        self.display_table.hide()
+
 
         self.form_des1.hide()
         self.form_entry1.hide()
@@ -137,8 +179,25 @@ class LoginGUI(QWidget):
         self.form_entry_btn.hide()
 
 
-        vertical_layout.addLayout(horizontal_layout)
+        form_layout.addRow(self.form_des1, self.form_entry1)
+        form_layout.addRow(self.form_des2, self.form_entry2)
+        form_layout.addRow(self.form_des3, self.form_entry3)
+        form_layout.addRow(self.form_entry_btn)
+
+
+        vertical_layout.addWidget(self.manubarbtn1)
+        vertical_layout.addWidget(self.manubarbtn2)
+        vertical_layout.addWidget(self.display_description)
+        vertical_layout.addWidget(self.display_table)
+        vertical_layout.addStretch()
+        vertical_layout.addWidget(self.loginSuccess)
+        vertical_layout.addWidget(self.setUserName)
+        horizontal_layout.addWidget(self.setUserAge)
+        horizontal_layout.addWidget(self.setUserEmail)
+        horizontal_layout.addWidget(self.setUserPhone)
+
         vertical_layout.addWidget(self.line_gap)
+        vertical_layout.addLayout(horizontal_layout)
         vertical_layout.addLayout(form_layout)
 
         vertical_layout.addStretch()
@@ -153,7 +212,7 @@ class LoginGUI(QWidget):
 
         vertical_layout.addStretch()
         self.setLayout(vertical_layout)
-        
+
 
         self.show()     #display GUI.
 
@@ -191,6 +250,8 @@ class LoginGUI(QWidget):
                 self.setUserEmail.show()
                 self.setUserPhone.setText(f"Phone:- {getUserData[6]}")
                 self.setUserPhone.show()
+                self.manubarbtn1.show()
+                self.manubarbtn2.show()
 
                 self.form_des1.show()
                 self.form_entry1.show()
@@ -219,19 +280,114 @@ class LoginGUI(QWidget):
         productWeight=self.form_entry3.text()
         userId=self.UserId.text()
 
-        self.form_entry1.setText("")
-        self.form_entry2.setText("")
-        self.form_entry3.setText("")
+        if (productId!="" and productName!="" and productWeight!=""):
+
+            self.form_entry1.setText("")
+            self.form_entry2.setText("")
+            self.form_entry3.setText("")
+
+            sqlservercursor = conn_mssql.cursor()
+            sqlservercursor.execute("INSERT INTO GUI_DATA_ENTRY (UserId,Product_Id,Product_Name,Product_Weight) VALUES (?,?,?,?)",userId,productId,productName,productWeight)
+            QMessageBox.information(
+                    self,
+                    'Information',
+                    'Data added successfully!'
+                )
+            conn_mssql.commit()
+            sqlservercursor.close()
+    
+
+    def clickForm(self):
+
+        self.form_des1.show()
+        self.form_entry1.show()
+        self.form_des2.show()
+        self.form_entry2.show()
+        self.form_des3.show()
+        self.form_entry3.show()
+        self.form_entry_btn.show()
+        self.line_gap.show()
+        self.loginSuccess.show()
+        self.setUserName.show()
+        self.setUserAge.show()
+        self.setUserEmail.show()
+        self.setUserPhone.show()
+
+        self.display_table.hide()
+
+    
+    def clickDisplay(self):
+
+        self.display_description.show()
+        self.display_table.show()
+
+        self.form_des1.hide()
+        self.form_entry1.hide()
+        self.form_des2.hide()
+        self.form_entry2.hide()
+        self.form_des3.hide()
+        self.form_entry3.hide()
+        self.form_entry_btn.hide()
+        self.line_gap.hide()
+        self.loginSuccess.hide()
+        self.setUserName.hide()
+        self.setUserAge.hide()
+        self.setUserEmail.hide()
+        self.setUserPhone.hide()
 
         sqlservercursor = conn_mssql.cursor()
-        sqlservercursor.execute("INSERT INTO GUI_DATA_ENTRY (UserId,Product_Id,Product_Name,Product_Weight) VALUES (?,?,?,?)",userId,productId,productName,productWeight)
-        QMessageBox.information(
-                self,
-                'Information',
-                'Data added successfully!'
-            )
-        conn_mssql.commit()
-        sqlservercursor.close()
+        sqlservercursor.execute("SELECT * FROM GUI_DATA_ENTRY")
+        myresult = sqlservercursor.fetchall()
+
+        getAllData=[]
+        for res in myresult:
+            # print(res)
+            getAllData.append(res)
+        
+        self.display_table.setRowCount(len(getAllData))
+
+        item_font_1 = QFont("Arial", 10)
+
+        r=0
+        for data in getAllData:
+            self.display_table.setItem(r, 0, QTableWidgetItem(str(r+1)))
+            self.display_table.setItem(r, 1, QTableWidgetItem(str(data[1])))
+            self.display_table.setItem(r, 2, QTableWidgetItem(data[2]))
+            self.display_table.setItem(r, 3, QTableWidgetItem(data[3]))
+            self.display_table.setItem(r, 4, QTableWidgetItem(str(data[4])))
+            self.btn1=QPushButton(self.display_table)
+            self.btn1.setText("Edit")
+            self.btn1.setObjectName("EditButtonQss")
+            self.btn1.clicked.connect(lambda : self.sendEditId(data[0]))
+            self.display_table.setCellWidget(r, 5, self.btn1)
+
+            self.btn2=QPushButton(self.display_table)
+            self.btn2.setText("Delete")
+            self.btn2.setObjectName("DeleteButtonQss")
+            self.btn2.clicked.connect(lambda : self.sendDeleteId(data[0]))
+            self.display_table.setCellWidget(r, 6, self.btn2)
+
+            self.display_table.item(r, 0).setFont(item_font_1)
+            self.display_table.item(r, 0).setTextAlignment(Qt.AlignCenter)
+            self.display_table.item(r, 1).setFont(item_font_1)
+            self.display_table.item(r, 1).setTextAlignment(Qt.AlignCenter)
+            self.display_table.item(r, 2).setFont(item_font_1)
+            self.display_table.item(r, 2).setTextAlignment(Qt.AlignCenter)
+            self.display_table.item(r, 3).setFont(item_font_1)
+            self.display_table.item(r, 3).setTextAlignment(Qt.AlignCenter)
+            self.display_table.item(r, 4).setFont(item_font_1)
+            self.display_table.item(r, 4).setTextAlignment(Qt.AlignCenter)
+
+            self.display_table.setRowHeight(r, 35)
+            r+=1
+
+
+    def sendEditId(self, x):
+        print(x)
+    
+
+    def sendDeleteId(self, y):
+        print(y)
 
 
 if __name__=='__main__':
