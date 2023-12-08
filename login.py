@@ -10,11 +10,14 @@ from pathlib import Path
 
 
 
-
-conn_mssql = pyodbc.connect('Driver={SQL Server};'
+          #Python_GUI
+readDbFile = open("dbName.txt", "r")
+dbName=readDbFile.read()
+conn_mssql = pyodbc.connect('Driver=SQL Server;'
         'Server=ABC\SQLEXPRESS;'
-        'Database=Python_GUI;'
+        'Database='+dbName+';'
         'Trusted_Connection=yes;')
+
 
 class LoginGUI(QWidget):
     def __init__(self):
@@ -27,6 +30,34 @@ class LoginGUI(QWidget):
         horizontal_layout = QHBoxLayout()
         form_layout = QFormLayout()
         
+
+        self.iconLabel=QLabel(alignment=Qt.AlignmentFlag.AlignRight)
+        self.settingIcon = QPixmap("./image icon/setting.png").scaled(QSize(20, 20))
+        self.iconLabel.setPixmap(self.settingIcon)
+        self.iconLabel.setObjectName('iconFloatQss')
+        self.iconLabel.mousePressEvent = self.settingClicked
+
+        self.settingHeading=QLabel("Setting",
+                                   alignment=Qt.AlignmentFlag.AlignHCenter
+                                   )
+        self.settingHeading.setObjectName("settingHeadingQss")
+        self.LoginTabBtn=QPushButton("Login Tab")
+        self.LoginTabBtn.setObjectName("LoginTabBtnQss")
+        self.LoginTabBtn.clicked.connect(self.LoginTab)
+
+        self.dbName = QLabel("Change Database Name:- ")
+        self.dbName.setObjectName("dbNameQss")
+        self.EnterdbNameName = QLineEdit(self, 
+                                placeholderText="Enter Database Name"
+                                )
+        self.EnterdbNameName.setObjectName("enterDbNameQss")
+        self.EnterdbNameName.setText(dbName)
+
+        self.SaveDbBtn=QPushButton("Save")
+        self.SaveDbBtn.setObjectName("SaveDbBtnQss")
+        self.SaveDbBtn.clicked.connect(self.SaveDbName)
+
+
 
         self.heading_1=QLabel("Login",
                         alignment=Qt.AlignmentFlag.AlignHCenter
@@ -178,12 +209,23 @@ class LoginGUI(QWidget):
         self.form_entry3.hide()
         self.form_entry_btn.hide()
 
+        self.settingHeading.hide()
+        self.LoginTabBtn.hide()
+        self.dbName.hide()
+        self.EnterdbNameName.hide()
+        self.SaveDbBtn.hide()
 
         form_layout.addRow(self.form_des1, self.form_entry1)
         form_layout.addRow(self.form_des2, self.form_entry2)
         form_layout.addRow(self.form_des3, self.form_entry3)
         form_layout.addRow(self.form_entry_btn)
 
+        vertical_layout.addWidget(self.settingHeading)
+        vertical_layout.addWidget(self.iconLabel)
+        vertical_layout.addWidget(self.LoginTabBtn)
+        vertical_layout.addWidget(self.dbName)
+        vertical_layout.addWidget(self.EnterdbNameName)
+        vertical_layout.addWidget(self.SaveDbBtn)
 
         vertical_layout.addWidget(self.manubarbtn1)
         vertical_layout.addWidget(self.manubarbtn2)
@@ -226,9 +268,17 @@ class LoginGUI(QWidget):
             # print("Password:- "+getPass)
 
             sqlservercursor = conn_mssql.cursor()
+            
+            try:
+                sqlservercursor.execute("SELECT * FROM GUI_APP_LOGIN WHERE userId=? AND pass=?", getUserId, getPass)
+                getUserData = sqlservercursor.fetchone()
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'Critical',
+                    'Error:- '+str(e)
+                )
 
-            sqlservercursor.execute("SELECT * FROM GUI_APP_LOGIN WHERE userId=? AND pass=?", getUserId, getPass)
-            getUserData = sqlservercursor.fetchone()
 
             if(getUserData):
 
@@ -239,6 +289,12 @@ class LoginGUI(QWidget):
                 self.Password_txt.hide()
                 self.Enter_Pass.hide()
                 self.LoginBtn.hide()
+                self.iconLabel.hide()
+                self.LoginTabBtn.hide()
+                self.settingHeading.hide()
+                self.dbName.hide()
+                self.EnterdbNameName.hide()
+                self.SaveDbBtn.hide()
                 
                 self.UserId.setText(str(getUserData[0]))
                 self.loginSuccess.show()
@@ -287,13 +343,22 @@ class LoginGUI(QWidget):
             self.form_entry3.setText("")
 
             sqlservercursor = conn_mssql.cursor()
-            sqlservercursor.execute("INSERT INTO GUI_DATA_ENTRY (UserId,Product_Id,Product_Name,Product_Weight) VALUES (?,?,?,?)",userId,productId,productName,productWeight)
-            QMessageBox.information(
+
+            try:
+                sqlservercursor.execute("INSERT INTO GUI_DATA_ENTRY (UserId,Product_Id,Product_Name,Product_Weight) VALUES (?,?,?,?)",userId,productId,productName,productWeight)
+                QMessageBox.information(
+                        self,
+                        'Information',
+                        'Data added successfully!'
+                    )
+                conn_mssql.commit()
+            except Exception as e:
+                QMessageBox.critical(
                     self,
-                    'Information',
-                    'Data added successfully!'
+                    'Critical',
+                    'Error:- '+str(e)
                 )
-            conn_mssql.commit()
+            
             sqlservercursor.close()
     
 
@@ -314,6 +379,13 @@ class LoginGUI(QWidget):
         self.setUserPhone.show()
 
         self.display_table.hide()
+        self.display_description.hide()
+        self.iconLabel.hide()
+        self.LoginTabBtn.hide()
+        self.settingHeading.hide()
+        self.dbName.hide()
+        self.EnterdbNameName.hide()
+        self.SaveDbBtn.hide()
 
     
     def clickDisplay(self):
@@ -334,10 +406,24 @@ class LoginGUI(QWidget):
         self.setUserAge.hide()
         self.setUserEmail.hide()
         self.setUserPhone.hide()
+        self.iconLabel.hide()
+        self.settingHeading.hide()
+        self.LoginTabBtn.hide()
+        self.dbName.hide()
+        self.EnterdbNameName.hide()
+        self.SaveDbBtn.hide()
 
-        sqlservercursor = conn_mssql.cursor()
-        sqlservercursor.execute("SELECT * FROM GUI_DATA_ENTRY")
-        myresult = sqlservercursor.fetchall()
+        try:
+            sqlservercursor = conn_mssql.cursor()
+            sqlservercursor.execute("SELECT * FROM GUI_DATA_ENTRY")
+            myresult = sqlservercursor.fetchall()
+        except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'Critical',
+                    'Error:- '+str(e)
+                )
+                
 
         getAllData=[]
         for res in myresult:
@@ -388,6 +474,46 @@ class LoginGUI(QWidget):
 
     def sendDeleteId(self, y):
         print(y)
+
+
+    def settingClicked(self, event):
+        self.heading_1.hide()
+        self.heading_2.hide()
+        self.UserId_txt.hide()
+        self.Enter_User_Id.hide()
+        self.Password_txt.hide()
+        self.Enter_Pass.hide()
+        self.LoginBtn.hide()
+        self.iconLabel.hide()
+
+        self.settingHeading.show()
+        self.LoginTabBtn.show()
+        self.dbName.show()
+        self.EnterdbNameName.show()
+        self.SaveDbBtn.show()
+    
+
+    def LoginTab(self):
+        self.heading_1.show()
+        self.heading_2.show()
+        self.UserId_txt.show()
+        self.Enter_User_Id.show()
+        self.Password_txt.show()
+        self.Enter_Pass.show()
+        self.LoginBtn.show()
+        self.iconLabel.show()
+        self.settingHeading.hide()
+        self.LoginTabBtn.hide()
+        self.dbName.hide()
+        self.EnterdbNameName.hide()
+        self.SaveDbBtn.hide()
+
+
+    def SaveDbName(self):
+        f = open("dbName.txt", "w")
+        f.write(self.EnterdbNameName.text())
+        f.close()
+
 
 
 if __name__=='__main__':
