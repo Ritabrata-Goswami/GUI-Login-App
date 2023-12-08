@@ -28,3 +28,6 @@ The QSS file has to keep in same directoy as Py file and add this file by below 
 app.setStyleSheet(Path('login.qss').read_text())
 ```
 In seperate file.
+
+Before Login to App you have to setup the database name on the setting section.
+upper-right corner holds a setting icon. By clicking on that it will open the Database change option on which you have to write the actual selected database name on which the login and insert table exists. False name will leads to exception.
